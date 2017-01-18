@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# Working with Apache 2.4 and Mac OS Sierra by @SwankyLynx
+# Working with Apache 2.4 and Mac OS Sierra by SwankyLynx
 
 HOSTS = "/etc/hosts"
 VHOSTSDIR = "/etc/apache2/extra/vhosts/" # needs trailing slash
@@ -16,10 +16,9 @@ def check_args
     usage
     exit
   else
-    @name = ARGV[1]
-    @domain = @name
+    @domain = ARGV[1]
     @vhost_path = VHOSTSDIR + @domain + '.conf'
-    @path = File.expand_path ARGV[2].chomp('/')
+    @webroot = File.expand_path ARGV[2].chomp('/')
   end
 end
 
@@ -43,15 +42,16 @@ def check_permission
 end
 
 def check_path
-  if !File.exists? @path
-    puts "\tERROR: Specified webroot dir '#{@path}' does not exist."
+  if !File.directory?(@webroot)
+    puts "\tERROR: Specified webroot dir '#{@webroot}' does not exist."
+    puts "\tMake it first -> mkdir #{@webroot}"
     exit
   end
 end
 
 def check_name
   if File.exists? @vhost_path
-    puts "\tERROR: Name '#{@name}' already used."
+    puts "\tERROR: Name '#{@domain}' already used."
     exit
   end
 end
@@ -61,12 +61,12 @@ def make_vhost
   File.open(@vhost_path, 'a') do |f|
     f.puts "<VirtualHost *:80>"
     f.puts "  ServerAdmin webmaster@#{@domain}"
-    f.puts "  DocumentRoot \"#{@path}\""
+    f.puts "  DocumentRoot \"#{@webroot}\""
     f.puts "  ServerName #{@domain}"
     f.puts "  ServerAlias www.#{@domain}"
     f.puts "  ErrorLog \"/private/var/log/apache2/#{@domain.split(/\s|\./)[0]}-error_log\""
     f.puts "  CustomLog \"/private/var/log/apache2/#{@domain.split(/\s|\./)[0]}-access_log\" common"
-    f.puts "  <Directory \"#{@path}\">"
+    f.puts "  <Directory \"#{@webroot}\">"
     f.puts "    Options Indexes FollowSymLinks MultiViews"
     f.puts "    AllowOverride All"
     f.puts "    Require all granted"
@@ -76,7 +76,7 @@ def make_vhost
 end
 
 def add_to_hosts
-  puts "\tAdding #{@name} to #{HOSTS}..."
+  puts "\tAdding #{@domain} to #{HOSTS}..."
   File.open(HOSTS, 'a') do |f|
     f.puts "127.0.0.1 #{@domain}"
   end
