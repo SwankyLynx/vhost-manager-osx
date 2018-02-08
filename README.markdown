@@ -2,9 +2,10 @@
 
 A little script to quickly add virtual hosts to your local Apache configuration for development purposes on Mac OS X.
 
-Given a name like "example.dev" and a path to the files for the site root directory, it will make the site appear at http://example.dev.
+Given a name like "example.local" and a path to the files for the site root directory, it will make the site appear at http://example.local.
 
-Currently it have been tested on Apache 2.4.23 and Mac OS Sierra.
+Currently it has been tested on Apache 2.4.23 in Mac OS Sierra.  
+It is also reported to work on Apache 2.4.28 in Mac OS El Capitan.
 
 ## Installation
 
@@ -44,25 +45,34 @@ Create folder for your domain in your *Sites* dir (`$HOME/Sites`), for instance:
 mkdir $HOME/Sites/example
 ```
 
-Next open Terminal and do like this to add `example.dev` (it's what you will type in your browser):
+Next open Terminal and do like this to add `example.local` (it's what you will type in your browser):
 
 ```sh
-vhostman add example.dev $HOME/Sites/example
+vhostman add example.local $HOME/Sites/example
 ```
 
 Apache will be restarted and virtual host config will be applied to get it work.
 
-That’s it! You can view your site in browser: http://example.dev.
+That’s it! You can view your site in browser: http://example.local.
 
-### Fixing issues
+## Fixing issues
 
-If you get an error like that:
+### bad interpreter: Operation not permitted
+
+If you get an error like this:
 
     bad interpreter: Operation not permitted
 
 Then do this:
 ```sh
 xattr -d com.apple.quarantine vhostman.rb
+```
+
+### ERROR: Specified webroot dir does not exist
+
+It's possible the webroot path contains a space. In this case enclose the path in quotes, and do not escape spaces with a backslash:
+```sh
+vhostman add example.local "$HOME/path with spaces/Sites/example"
 ```
 
 
